@@ -107,8 +107,8 @@ typedef struct struct_message {
   int id;
   int b;
   int c;
-  int type;
   int readingID;
+  int type;
   int traffic_density[4]; // Density values or unused
 } struct_message;
 // Crea un struct_message llamado myData
@@ -257,13 +257,7 @@ void setup(){
 
   // Checkea por override de emergencia
   if (digitalRead(manualOverride) == LOW) {
-    emergencyMode = true;
     trafficState = YYYY;
-    setAllRed();
-    Serial.println("MODO EMERGENCIA ACTIVADO");
-    return;
-  } else {
-    emergencyMode = false;
   }
 
   // Maquina de estados principal
@@ -406,12 +400,15 @@ void setup(){
 
 
     case YYYY:
-      Serial.println("ESTADO: RRRR (Todo Rojo Emergencia)");
+      if (previousState != YYYY) {
+        Serial.println("Estado: RRRR (Todos Rojos Emergencia)");
+        previousState = YYYY;
+      }
       setAllRed();
 
-      if (accumulatedMillis >= tiempo_semaforo) {
+      if (digitalRead(manualOverride) == HIGH) {
         timerMillis = millis();
-        trafficState = GR;
+        trafficState = INICIO;
       }
       break;
 
